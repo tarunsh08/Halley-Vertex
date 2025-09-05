@@ -34,17 +34,30 @@ export function taskWorker() {
       }
 
       try {
-        const parsedResult = typeof result === 'string' ? JSON.parse(result) : result;
+        let parsedResult;
         
-        if (!parsedResult || typeof parsedResult !== 'object') {
-          throw new Error('Invalid response format: Expected an object');
+        console.log('Raw AI response:', typeof result === 'string' ? result : JSON.stringify(result, null, 2));
+        
+        if (result && typeof result === 'object' && !Array.isArray(result)) {
+          parsedResult = result;
+        } 
+        else if (typeof result === 'string') {
+          try {
+            parsedResult = JSON.parse(result);
+          } catch (parseError) {
+            console.log('Failed to parse as JSON, treating as raw code response');
+            parsedResult = {
+              'code.js': result
+            };
+          }
         }
         
-        // if (!parsedResult.hasOwnProperty('code') || !parsedResult.hasOwnProperty('explanation')) {
-        //   throw new Error('Invalid response format: Missing required fields');
-        // }
+        if (!parsedResult || typeof parsedResult !== 'object' || Array.isArray(parsedResult)) {
+          console.error('Invalid parsed result format:', parsedResult);
+          throw new Error('Invalid response format: Expected an object with code and explanation');
+        }
         
-        console.log("AI result validated successfully");
+        console.log("AI result validated successfully:", parsedResult);
         result = parsedResult; 
       } catch (parseError) {
         console.error('Error parsing/validating AI response:', parseError);

@@ -1,4 +1,4 @@
-import { taskQueue } from "../queues/task.queue.js";
+import { taskQueue } from "../queue/taskQueue.js";
 import { Task } from "../models/task.model.js";
 
 export async function createTask(description, type) {
